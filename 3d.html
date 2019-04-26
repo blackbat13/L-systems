@@ -1,0 +1,295 @@
+<div id="rightPanel">
+    <form id="turtleForm">
+        <div class="turtleInput">
+            <label for="angle">Kąt obrotu:</label>
+            <input type="number" id="angle" name="angle" value="25" step="1" min="0" max="360" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="beginningInstruction">Instrukcja początkowa:</label>
+            <input type="text" id="beginningInstruction" name="beginningInstruction" value="X" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="productions">Produkcje:</label>
+            <textarea id="productions" name="productions" required></textarea>
+        </div>
+
+        <div class="turtleInput">
+            <label for="iterationNumber">Ilość iteracji:</label>
+            <input type="number" name="iterationNumber" min="0" value="3" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="pathLength">Długość ścieżki:</label>
+            <input type="number" id="pathLength" name="pathLength" step="1" min="0" value="10" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="turtleyX">Pozycja x żółwia:</label>
+            <input type="number" name="turtleyX" step="1" min="-100" max="100" required value="0"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="turtleyY">Pozycja y żółwia:</label>
+            <input type="number" name="turtleyY" step="1" min="-100" max="100" required value="0"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="turtleyZ">Pozycja z żółwia:</label>
+            <input type="number" name="turtleyZ" step="1" min="-100" max="100" required value="0"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="pathThickness">Grubość ścieżki:</label>
+            <input type="number" id="pathThickness" name="pathThickness" step="0.1" min="0.1" max="1" value="0.2" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="drawForest">Rysuj las</label>
+            <input type="checkbox" id="drawForest" name="drawForest"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="colorRandomization">Losowy kolor</label>
+            <input type="checkbox" id="colorRandomization" name="colorRandomization"/>
+        </div>
+
+        <div class="turtleInput">
+            <input type="text" id="colorInput"/>
+        </div>
+
+        <div class="turtleInput">
+            <input type="submit" name="generate" value="Generuj"/>
+        </div>
+    </form>
+    <select name="examples" id="examples">
+        <option value="-1">Brak</option>
+    </select>
+
+    <button id="btnClear">Wyczyść</button>
+
+    <div class="turtleInput">
+        <label for="light">Dodatkowe światło</label>
+        <input type="checkbox" id="light" name="light"/>
+    </div>
+
+    <div id="generatedInstruction"></div>
+</div>
+
+<script>
+    var turtle3D;
+    var turtleColor;
+
+    function initialize() {
+        turtleColor = "#ffffff";
+        initializeSpectrum();
+        turtle3D = new Turtle3D();
+        turtle3D.initialize();
+    }
+
+    function initializeSpectrum() {
+        $('#colorInput').spectrum({
+            color: turtleColor,
+            change: function (color) {
+                turtleColor = color.toHexString();
+                turtle3D.changeColor(turtleColor);
+            }
+        });
+    }
+
+    $("#turtleForm").submit(function (event) {
+        event.preventDefault();
+        var form = $(this).serializeArray();
+        var theta = form[0].value * Math.PI / 180;
+        var instruction = form[1].value;
+        var productionsString = form[2].value;
+        var numberOfIterations = form[3].value;
+        var lineLength = form[4].value;
+        var turtleX = parseInt(form[5].value);
+        var turtleY = parseInt(form[6].value);
+        var turtleZ = parseInt(form[7].value);
+        var lineThickness = $("#pathThickness").val();
+        var lindenmayer = new LindenmayerParser();
+        var instructions = lindenmayer.generate(instruction, productionsString, numberOfIterations);
+        turtle3D.setSettings({
+            instruction: instructions,
+            productionsString: productionsString,
+            numberOfIterations: numberOfIterations
+        });
+        turtle3D.colorRandomization($("#colorRandomization").prop('checked'));
+        if ($("#drawForest").prop('checked')) {
+            turtle3D.drawForest(turtleX, turtleY, turtleZ, [[1, 0, 0], [0, 1, 0], [0, 0, 1]], theta, lineLength, turtleColor, lineThickness);
+        }
+        else {
+            turtle3D.draw(turtleX, turtleY, turtleZ, [[1, 0, 0], [0, 1, 0], [0, 0, 1]], theta, lineLength, turtleColor, lineThickness);
+        }
+    });
+
+    $("#btnClear").click(function () {
+        turtle3D.clearScene();
+    });
+
+    $("#light").change(function(){
+        turtle3D.turnLight($(this).is(":checked"));
+    });
+
+    initialize();
+
+    var examples = [];
+    examples[0] = {
+        name: "Sierpiński Gasket",
+        angle: 60,
+        beginningInstruction: "F",
+        productions: "G->F+G+F; F->G-F-G"
+    };
+    examples[1] = {
+        name: "Fractal plant",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->F-[[X]+X]+F[+FX]-X; F->FF"
+    };
+    examples[2] = {
+        name: "Dragon curve",
+        angle: 90,
+        beginningInstruction: "FX",
+        productions: "X->X+YF; Y->FX-Y"
+    };
+    examples[3] = {
+        name: "Koch Snowflake",
+        angle: 60,
+        beginningInstruction: "F++F++F",
+        productions: "F->F-F++F-F"
+    };
+    examples[4] = {
+        name: "Koch Curve",
+        angle: 90,
+        beginningInstruction: "F",
+        productions: "F->F+F-F-F+F"
+    };
+    examples[5] = {
+        name: "Quadratic Koch Island",
+        angle: 270,
+        beginningInstruction: "F+F+F+F",
+        productions: "F->F+F-F-FF+F+F-F"
+    };
+    examples[6] = {
+        name: "Willow",
+        angle: 330,
+        beginningInstruction: "LFFF",
+        productions: "LFFF->TFFF[+LFFF]RFFF; RFFF->TFFF[-LFFF]LFFF; TF->TFF"
+    };
+    examples[7] = {
+        name: "O-Tile",
+        angle: 345,
+        beginningInstruction: "X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+",
+        productions: " X->[F+F+F+F[---X-Y]+++++F++++++++F-F-F-F]; Y->[F+F+F+F[---Y]+++++F++++++++F-F-F-F]"
+    };
+    examples[7] = {
+        name: "Rings",
+        angle: 90,
+        beginningInstruction: "F-F-F-F",
+        productions: "F->FF-F-F-F-F-F+F"
+    };
+    examples[8] = {
+        name: "Cantor's Dust",
+        angle: 0,
+        beginningInstruction: "F",
+        productions: "F->FfF; f->fff"
+    };
+    examples[9] = {
+        name: "Something",
+        angle: 65,
+        beginningInstruction: "F",
+        productions: "F->F+F--F+F"
+    };
+    examples[10] = {
+        name: "Colorful",
+        angle: 60,
+        beginningInstruction: "X(10)",
+        productions: "X(x)->F(x,x%19,x%255,(x*2)%255,(x*3)%255)+X(x+5)"
+    };
+    examples[11] = {
+        name: "Zigzak",
+        angle: 60,
+        beginningInstruction: "A(20,50)",
+        productions: "A(a,l)->F(l)[F(l*0.5)P(l)]-(-a)A(-a,l*0.9);P(l)->F(l/2,l/4,255,0,0)"
+    };
+    examples[12] = {
+        name: "Spirala",
+        angle: 60,
+        beginningInstruction: "A(50,50)",
+        productions: "A(a,l)->F(l)[F(l*0.5)P(l)][-(-90)L(l)]-(-a)A(a,l*0.9);P(l)->F(20)O(5,10,255,0,0)"
+    };
+    examples[13] = {
+        name: "Peano Curve",
+        angle: 90,
+        beginningInstruction: "F",
+        productions: "F->F+F-F-F-F+F+F+F-F"
+    };
+    examples[14] = {
+        name: "Peano-Gosper Curve",
+        angle: 60,
+        beginningInstruction: "FX",
+        productions: "X->X+YF++YF-FX--FXFX-YF+; Y->-FX+YFYF++YF+FX--FX-Y"
+    };
+    examples[15] = {
+        name: "Koch Snowflake",
+        angle: 60,
+        beginningInstruction: "F--F--F",
+        productions: "F->F+F--F+F"
+    };
+    examples[16] = {
+        name: "Hilbert Curve",
+        angle: 90,
+        beginningInstruction: "X",
+        productions: "X->^\\XF^\\XFX-F^//XFX&F+//XFX-F/X-/"
+    };
+    examples[17] = {
+        name: "Strong Tree",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->FFF-[-F+F[Y]-[X]]+[+F+F[X]-[X]]; Y->FF-[-F+F]+[+F+FY]"
+    };
+    examples[18] = {
+        name: "Crooked Tree",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->F-F+Y; Y->F-[[-F-F+F+FFY]+FFY]+F[+F+F+FFY]-FF+F-FY"
+    };
+    examples[19] = {
+        name: "3D plant",
+        angle: 15,
+        beginningInstruction: "++++++FA",
+        productions: "A->^FB///B/////B; B->[^^F//////A]"
+    };
+    examples[20] = {
+        name: "Node tree",
+        angle: 23,
+        beginningInstruction: "++++A",
+        productions: "A->[&fLA]/////[&fLA]/////[&fLA]; f->S////f; S->fL; L->O"
+    };
+    examples[21] = {
+        name: "Tree",
+        angle: 23,
+        beginningInstruction: "++++A",
+        productions: "A->[&FA]/////[&FA]/////[&FA]; F->S////F; S->F"
+    };
+
+    for (var i = 0; i < examples.length; ++i) {
+        $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+    }
+
+    $("#examples").change(function () {
+        var selectedIndex = $('select[name=examples]').val();
+        if (selectedIndex == -1) {
+            return;
+        }
+
+        var selectedExample = examples[selectedIndex];
+        $("#angle").val(selectedExample.angle);
+        $("#beginningInstruction").val(selectedExample.beginningInstruction);
+        $("#productions").val(selectedExample.productions);
+    });
+
+</script>

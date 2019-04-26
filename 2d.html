@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Liendenmayer</title>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="js/Tools.js"></script>
+    <script src="js/KeyCodes.js"></script>
+    <script src="js/LindenmayerParser.js"></script>
+    <script src="js/Turtle2D.js"></script>
+    <script src="node_modules/spectrum-colorpicker/spectrum.js"></script>
+    <script src="node_modules/jcanvas/dist/jcanvas.js"></script>
+    <link rel="stylesheet" href="css/main.css" type="text/css"/>
+</head>
+<body>
+
+<div id="rightPanel">
+    <form id="turtleForm">
+        <div class="turtleInput">
+            <label for="angle">Kąt obrotu:</label>
+            <input type="number" id="angle" name="angle" value="25" step="1" min="0" max="360" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="beginningInstruction">Instrukcja początkowa:</label>
+            <input type="text" id="beginningInstruction" name="beginningInstruction" value="X" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="productions">Produkcje:</label>
+            <textarea id="productions" name="productions" required></textarea>
+        </div>
+
+        <div class="turtleInput">
+            <label for="iterationNumber">Ilość iteracji:</label>
+            <input type="number" name="iterationNumber" id="iterationNumber" min="0" value="3" required/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="pathLength">Długość ścieżki:</label>
+            <input type="number" id="pathLength" name="pathLength" step="0.1" min="0" value="10" required/>
+        </div>
+
+        <!--<div class="turtleInput">
+          <label for="step">Krok:</label>
+          <input type="number" name="step" step="0.001" min="0" value="1"/>
+        </div>-->
+
+        <div class="turtleInput">
+            <label for="turtleyX">Pozycja x żółwia:</label>
+            <input type="number" name="turtleyX" step="1" min="0" max="5000" required value="2500"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="turtleyY">Pozycja y żółwia:</label>
+            <input type="number" name="turtleyY" step="1" min="0" max="5000" required value="2500"/>
+        </div>
+
+        <div class="turtleInput">
+            <input type="text" id="colorInput"/>
+        </div>
+
+        <div class="turtleInput">
+            <label for="drawInstantly">Rysuj natychmiast</label>
+            <input type="checkbox" id="drawInstantly" name="drawInstantly" checked/>
+        </div>
+
+        <div class="turtleInput">
+            <input type="submit" name="generate" value="Generuj"/>
+        </div>
+    </form>
+    <select name="examples" id="examples">
+        <option value="-1">Brak</option>
+    </select>
+
+    <form id="animateForm">
+        <div class="turtleInput">
+            <div class="turtleInput">
+                <label for="animationStep">Krok animacji:</label>
+                <input type="number" name="animationStep" id="animationStep" step="0.01" min="0.01" max="359.99"
+                       required value="1"/>
+            </div>
+            <button id="btnAnimate">Animuj</button>
+        </div>
+    </form>
+
+    <button id="goDeeper">Zwiększ głębię</button>
+
+    <div class="turtleInput">
+        <textarea id="generatedInstruction"></textarea>
+    </div>
+</div>
+<canvas id="test" width="5000" height="5000">
+
+</canvas>
+
+<script>
+    window.scroll(2250, 2250);
+    $("#angle").val(60);
+    $("#beginningInstruction").val("F++F++F");
+    $("#productions").val("F->F-F++F-F");
+    var theta = Math.PI / 3;
+    var canvas = document.getElementById('test');
+    var context = canvas.getContext('2d');
+    var lineLength = 0.5;
+    var animationAngle = 0;
+    var turtleX = 500;
+    var turtleY = 500;
+    var animationID = null;
+
+    var drawID;
+    var turtleAlfa = -90 * Math.PI / 180;
+    var instructionData;
+    var turtle2D;
+    var theta;
+    var turtleColor = '#0000ff';
+
+    $('#colorInput').spectrum({
+        color: turtleColor,
+        change: function (color) {
+            turtleColor = color.toHexString();
+            if (turtle2D != null) {
+                turtle2D.changeColor(turtleColor);
+            }
+        }
+    });
+
+    $("#turtleForm").submit(function (event) {
+        event.preventDefault();
+        var form = $(this).serializeArray();
+        theta = form[0].value * Math.PI / 180;
+        var instruction = form[1].value;
+        var productionsString = form[2].value;
+        var numberOfIterations = form[3].value;
+        lineLength = form[4].value;
+        turtleX = parseInt(form[5].value);
+        turtleY = parseInt(form[6].value);
+        var lindenmayer = new LindenmayerParser();
+        var instructions = lindenmayer.generate(instruction, productionsString, numberOfIterations);
+        $("#generatedInstruction").val(instructions);
+        if (turtle2D != null) {
+            turtle2D.stop();
+        }
+
+        turtle2D = new Turtle2D({
+            canvasId: 'test',
+            instruction: instructions,
+            productionsString: productionsString,
+            numberOfIterations: numberOfIterations
+        });
+
+        if ($("#drawInstantly").prop('checked') == true) {
+            turtle2D.drawInstantly(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+        } else {
+            turtle2D.draw(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+        }
+    });
+
+    $("#goDeeper").click(function (event) {
+        event.preventDefault;
+        var instruction = $("#beginningInstruction").val();
+        var productionsString = $("#productions").val();
+        var numberOfIterations = parseInt($("#iterationNumber").val());
+        ++numberOfIterations;
+        $("#iterationNumber").val(numberOfIterations);
+        var lindenmayer = new LindenmayerParser();
+        var instructions = lindenmayer.generate(instruction, productionsString, numberOfIterations);
+        $("#generatedInstruction").val(instructions);
+        turtle2D.countValues(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+        turtle2D.setInstruction(instructions);
+        lineLength = turtle2D.drawWithProperLength(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+        $("#pathLength").val(lineLength);
+    });
+
+    $("#angle").change(function () {
+        if (turtle2D != null) {
+            theta = $(this).val() * Math.PI / 180;
+            if ($("#drawInstantly").prop('checked') == true) {
+                turtle2D.drawInstantly(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+            } else {
+                turtle2D.draw(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+            }
+        }
+    });
+
+    $("#pathLength").change(function () {
+        if (turtle2D != null) {
+            lineLength = $(this).val();
+            if ($("#drawInstantly").prop('checked') == true) {
+                turtle2D.drawInstantly(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+            } else {
+                turtle2D.draw(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+            }
+        }
+    });
+
+    $("#btnAnimate").click(function (event) {
+        if (animationID != null) {
+            clearInterval(animationID);
+            animationID = null;
+        } else {
+            animationAngle = parseInt($("#angle").val());
+            animationID = window.setInterval("animationDynamic()", 100);
+        }
+
+        event.preventDefault();
+    });
+
+    function animate() {
+        window.setInterval("animation()", 100);
+    }
+
+    function animationDynamic() {
+        theta = animationAngle * Math.PI / 180;
+        turtle2D.drawInstantly(turtleX, turtleY, turtleAlfa, theta, lineLength, turtleColor);
+        animationAngle += parseFloat($("#animationStep").val());
+        animationAngle %= 360;
+        $("#angle").val(animationAngle);
+    }
+
+    var examples = [];
+    examples[0] = {
+        name: "Sierpiński Gasket",
+        angle: 60,
+        beginningInstruction: "F",
+        productions: "G->F+G+F; F->G-F-G",
+        iterationNumber: 7
+    };
+    examples[1] = {
+        name: "Fractal plant",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->F-[[X]+X]+F[+FX]-X; F->FF",
+        iterationNumber: 4
+    };
+    examples[2] = {
+        name: "Dragon curve",
+        angle: 90,
+        beginningInstruction: "FX",
+        productions: "X->X+YF; Y->FX-Y",
+        iterationNumber: 10
+    };
+    examples[3] = {
+        name: "Koch Snowflake",
+        angle: 60,
+        beginningInstruction: "F++F++F",
+        productions: "F->F-F++F-F",
+        iterationNumber: 3
+    };
+    examples[4] = {
+        name: "Koch Curve",
+        angle: 90,
+        beginningInstruction: "F",
+        productions: "F->F+F-F-F+F",
+        iterationNumber: 3
+    };
+    examples[5] = {
+        name: "Quadratic Koch Island",
+        angle: 270,
+        beginningInstruction: "F+F+F+F",
+        productions: "F->F+F-F-FF+F+F-F",
+        iterationNumber: 2
+    };
+    examples[6] = {
+        name: "Willow",
+        angle: 330,
+        beginningInstruction: "LFFF",
+        productions: "LFFF->TFFF[+LFFF]RFFF; RFFF->TFFF[-LFFF]LFFF; TF->TFF",
+        iterationNumber: 5
+    };
+    examples[19] = {
+        name: "O-Tile",
+        angle: 345,
+        beginningInstruction: "X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+X+",
+        productions: " X->[F+F+F+F[---X-Y]+++++F++++++++F-F-F-F]; Y->[F+F+F+F[---Y]+++++F++++++++F-F-F-F]",
+        iterationNumber: 3
+    };
+    examples[7] = {
+        name: "Rings",
+        angle: 90,
+        beginningInstruction: "F-F-F-F",
+        productions: "F->FF-F-F-F-F-F+F",
+        iterationNumber: 3
+    };
+    examples[8] = {
+        name: "Cantor's Dust",
+        angle: 0,
+        beginningInstruction: "F",
+        productions: "F->FfF; f->fff",
+        iterationNumber: 5
+    };
+    examples[9] = {
+        name: "Something",
+        angle: 65,
+        beginningInstruction: "F",
+        productions: "F->F+F--F+F",
+        iterationNumber: 4
+    };
+    examples[10] = {
+        name: "Colorful",
+        angle: 60,
+        beginningInstruction: "X(10)",
+        productions: "X(x)->F(x,x%19,x%255,(x*2)%255,(x*3)%255)+X(x+5)",
+        iterationNumber: 100
+    };
+    examples[11] = {
+        name: "Zigzak",
+        angle: 60,
+        beginningInstruction: "A(20,50)",
+        productions: "A(a,l)->F(l)[F(l*0.5)P(l)]-(-a)A(-a,l*0.9);P(l)->F(l/2,l/4,255,0,0)",
+        iterationNumber: 8
+    };
+    examples[12] = {
+        name: "Spirala",
+        angle: 60,
+        beginningInstruction: "A(50,50)",
+        productions: "A(a,l)->F(l)[F(l*0.5)P(l)][-(-90)L(l)]-(-a)A(a,l*0.9);P(l)->F(20)O(5,10,255,0,0)",
+        iterationNumber: 8
+    };
+    examples[13] = {
+        name: "Peano Curve",
+        angle: 90,
+        beginningInstruction: "F",
+        productions: "F->F+F-F-F-F+F+F+F-F",
+        iterationNumber: 3
+    };
+    examples[14] = {
+        name: "Peano-Gosper Curve",
+        angle: 60,
+        beginningInstruction: "FX",
+        productions: "X->X+YF++YF-FX--FXFX-YF+; Y->-FX+YFYF++YF+FX--FX-Y",
+        iterationNumber: 3
+    };
+    examples[15] = {
+        name: "Koch Snowflake",
+        angle: 60,
+        beginningInstruction: "F--F--F",
+        productions: "F->F+F--F+F",
+        iterationNumber: 3
+    };
+    examples[16] = {
+        name: "Hilbert Curve",
+        angle: 90,
+        beginningInstruction: "L",
+        productions: "L->+RF-LFL-FR+; R->-LF+RFR+FL-",
+        iterationNumber: 5
+    };
+    examples[17] = {
+        name: "Strong Tree",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->FFF-[-F+F[Y]-[X]]+[+F+F[X]-[X]]; Y->FF-[-F+F]+[+F+FY]",
+        iterationNumber: 3
+    };
+    examples[18] = {
+        name: "Crooked Tree",
+        angle: 25,
+        beginningInstruction: "X",
+        productions: "X->F-F+Y; Y->F-[[-F-F+F+FFY]+FFY]+F[+F+F+FFY]-FF+F-FY",
+        iterationNumber: 3
+    };
+    examples[19] = {
+        name: "Plant",
+        angle: 45,
+        beginningInstruction: "A(0)",
+        productions: "A(d):d>0->A(d-1);A(d):d==0->F(1)[+A(1)][-A(1)]F(1)A(0);F(a)->F(a*1.5)",
+        iterationNumber: 10
+    };
+
+    for (var i = 0; i < examples.length; ++i) {
+        $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
+    }
+
+    $("#examples").change(function () {
+        var selectedIndex = $('select[name=examples]').val();
+        if (selectedIndex == -1) {
+            return;
+        }
+
+        var selectedExample = examples[selectedIndex];
+        $("#angle").val(selectedExample.angle);
+        $("#beginningInstruction").val(selectedExample.beginningInstruction);
+        $("#productions").val(selectedExample.productions);
+        $("#iterationNumber").val(selectedExample.iterationNumber);
+    });
+</script>
+</body>
+</html>
+
+
+

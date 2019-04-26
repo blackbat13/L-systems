@@ -1,0 +1,13 @@
+{
+  "name": "l-systems",
+  "version": "0.0.1",
+  "main": "main.js",
+  "dependencies": {
+    "electron": "^1.6.2",
+    "jquery": "^3.3.1",
+    "bootstrap": "^4.0.0",
+    "spectrum-colorpicker": "^1.8.0",
+    "jcanvas": "^21.0.1",
+    "three": "^0.104.0"
+  }
+}
