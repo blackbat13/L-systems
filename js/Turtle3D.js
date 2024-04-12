@@ -1,19 +1,21 @@
-var Turtle3D = function (settings) {
-    var scene;
-    var camera;
-    var renderer;
-    var instructionData;
-    var drawColor;
-    var linesOnScene;
-    var remembered;
-    var rememberedImportant;
-    var canvasWidth;
-    var canvasHeight;
-    var instruction = settings != null ? settings.instruction : "";
-    var productionsString = settings != null ? settings.productionsString : "";
-    var numberOfIterations = settings != null ? settings.numberOfIterations : 0;
-    var isRandomColor;
-    var overallLight;
+import * as THREE from '../vendor/three.module.min.js';
+
+let Turtle3D = function (settings) {
+    let scene;
+    let camera;
+    let renderer;
+    let instructionData;
+    let drawColor;
+    let linesOnScene;
+    let remembered;
+    let rememberedImportant;
+    let canvasWidth;
+    let canvasHeight;
+    let instruction = settings != null ? settings.instruction : "";
+    let productionsString = settings != null ? settings.productionsString : "";
+    let numberOfIterations = settings != null ? settings.numberOfIterations : 0;
+    let isRandomColor;
+    let overallLight;
 
     this.setSettings = function (settings) {
         instruction = settings.instruction;
@@ -385,21 +387,19 @@ var Turtle3D = function (settings) {
             case KeyCodes.UP:
                 camera.position.y += 1;
                 return false;
-                break;
             case KeyCodes.DOWN:
                 camera.position.y -= 1;
                 return false;
-                break;
             case KeyCodes.LEFT:
                 camera.position.x -= 1;
                 return false;
-                break;
             case KeyCodes.RIGHT:
                 camera.position.x += 1;
                 return false;
-                break;
         }
     });
 
     var draw = this.draw;
 };
+
+export default Turtle3D;

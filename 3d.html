@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Liendenmayer</title>
-    <script src="vendor/jquery.min.js"></script>
-    <script src="js/Tools.js"></script>
-    <script src="js/KeyCodes.js"></script>
-    <script src="js/LindenmayerParser.js"></script>
-    <script src="js/Turtle3D.js"></script>
-    <script src="vendor/spectrum.js"></script>
-    <script src="vendor/jcanvas.min.js"></script>
-    <script src="vendor/three.min.js"></script>
-    <link rel="stylesheet" href="css/main.css" type="text/css"/>
+    <link rel="stylesheet" href="vendor/bootstrap.min.css" type="text/css"/>
     <link rel="stylesheet" href="vendor/spectrum.css" type="text/css"/>
+    <link rel="stylesheet" href="css/main.css" type="text/css"/>
 </head>
 <body>
 <div id="rightPanel">
@@ -94,7 +87,17 @@
     <div id="generatedInstruction"></div>
 </div>
 
-<script>
+<script src="vendor/jquery.min.js"></script>
+<script src="vendor/bootstrap.min.js"></script>
+<script src="vendor/spectrum.js"></script>
+<script src="vendor/jcanvas.min.js"></script>
+<script src="js/Tools.js"></script>
+<script src="js/KeyCodes.js"></script>
+<script src="js/LindenmayerParser.js"></script>
+<script type="module" src="js/Turtle3D.js"></script>
+<script type="module">
+    import Turtle3D from "./js/Turtle3D.js";
+
     var turtle3D;
     var turtleColor;
 
