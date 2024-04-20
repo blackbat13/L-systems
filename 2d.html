@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Liendenmayer</title>
     <link rel="stylesheet" href="vendor/bootstrap.min.css" type="text/css"/>
-    <link rel="stylesheet" href="vendor/spectrum.css" type="text/css"/>
+    <link rel="stylesheet" href="vendor/bootstrap-toggle.min.css" type="text/css"/>
     <link rel="stylesheet" href="css/main.css" type="text/css"/>
 </head>
 <body>
@@ -12,28 +12,28 @@
 <div id="rightPanel">
     <form id="turtleForm">
         <div class="turtleInput">
-            <label for="angle">Kąt obrotu:</label>
-            <input type="number" id="angle" name="angle" value="25" step="1" min="0" max="360" required/>
+            <label class="form-label" for="angle">Kąt obrotu:</label>
+            <input class="form-control" type="number" id="angle" name="angle" value="25" step="1" min="0" max="360" required/>
         </div>
 
         <div class="turtleInput">
-            <label for="beginningInstruction">Instrukcja początkowa:</label>
-            <input type="text" id="beginningInstruction" name="beginningInstruction" value="X" required/>
+            <label class="form-label" for="beginningInstruction">Instrukcja początkowa:</label>
+            <input class="form-control" type="text" id="beginningInstruction" name="beginningInstruction" value="X" required/>
         </div>
 
         <div class="turtleInput">
-            <label for="productions">Produkcje:</label>
-            <textarea id="productions" name="productions" required></textarea>
+            <label class="form-label" for="productions">Produkcje:</label>
+            <textarea class="form-control" id="productions" name="productions" required></textarea>
         </div>
 
         <div class="turtleInput">
-            <label for="iterationNumber">Ilość iteracji:</label>
-            <input type="number" name="iterationNumber" id="iterationNumber" min="0" value="3" required/>
+            <label class="form-label" for="iterationNumber">Liczba iteracji:</label>
+            <input class="form-control" type="number" name="iterationNumber" id="iterationNumber" min="0" value="3" required/>
         </div>
 
         <div class="turtleInput">
-            <label for="pathLength">Długość ścieżki:</label>
-            <input type="number" id="pathLength" name="pathLength" step="0.1" min="0" value="10" required/>
+            <label class="form-label" for="pathLength">Długość ścieżki:</label>
+            <input class="form-control" type="number" id="pathLength" name="pathLength" step="0.1" min="0" value="10" required/>
         </div>
 
         <!--<div class="turtleInput">
@@ -42,47 +42,53 @@
         </div>-->
 
         <div class="turtleInput">
-            <label for="turtleyX">Pozycja x żółwia:</label>
-            <input type="number" name="turtleyX" step="1" min="0" max="5000" required value="2500"/>
+            <label class="form-label" for="turtleyX">Pozycja x żółwia:</label>
+            <input class="form-control" type="number" name="turtleyX" step="1" min="0" max="5000" required value="2500"/>
         </div>
 
         <div class="turtleInput">
-            <label for="turtleyY">Pozycja y żółwia:</label>
-            <input type="number" name="turtleyY" step="1" min="0" max="5000" required value="2500"/>
+            <label class="form-label" for="turtleyY">Pozycja y żółwia:</label>
+            <input class="form-control" type="number" name="turtleyY" step="1" min="0" max="5000" required value="2500"/>
         </div>
 
         <div class="turtleInput">
-            <input type="text" id="colorInput"/>
+            <label class="form-label" for="colorInput">Kolor rysowania:</label>
+            <input class="form-control" type="color" id="colorInput" value="#4D243D"/>
         </div>
 
         <div class="turtleInput">
-            <label for="drawInstantly">Rysuj natychmiast</label>
-            <input type="checkbox" id="drawInstantly" name="drawInstantly" checked/>
+            <label class="form-check-label" for="drawInstantly">Rysuj natychmiast:</label>
+            <input class="form-check-input" type="checkbox" id="drawInstantly" name="drawInstantly" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger"/>
         </div>
 
         <div class="turtleInput">
-            <input type="submit" name="generate" value="Generuj"/>
+            <input class="form-control btn btn-primary" type="submit" name="generate" value="Generuj"/>
         </div>
     </form>
-    <select name="examples" id="examples">
-        <option value="-1">Brak</option>
-    </select>
+
+    <div>
+        <label class="form-label" for="examples">Przykłady:</label>
+        <select class="form-select" name="examples" id="examples">
+            <option value="-1">Brak</option>
+        </select>
+    </div>
 
     <form id="animateForm">
         <div class="turtleInput">
             <div class="turtleInput">
-                <label for="animationStep">Krok animacji:</label>
-                <input type="number" name="animationStep" id="animationStep" step="0.01" min="0.01" max="359.99"
+                <label class="form-label" for="animationStep">Krok animacji:</label>
+                <input class="form-control" type="number" name="animationStep" id="animationStep" step="0.01" min="0.01" max="359.99"
                        required value="1"/>
             </div>
-            <button id="btnAnimate">Animuj</button>
+            <label class="form-check-label" for="btnAnimate">Animuj:</label>
+            <input class="form-check-input" type="checkbox" id="btnAnimate" data-toggle="toggle" data-onstyle="success" data-offstyle="danger" />
         </div>
     </form>
 
-    <button id="goDeeper">Zwiększ głębię</button>
+    <button class="form-control btn btn-warning" type="button" id="goDeeper">Zwiększ głębię</button>
 
     <div class="turtleInput">
-        <textarea id="generatedInstruction"></textarea>
+        <textarea class="form-control" id="generatedInstruction"></textarea>
     </div>
 </div>
 <canvas id="test" width="5000" height="5000">
@@ -91,14 +97,14 @@
 
 <script src="vendor/jquery.min.js"></script>
 <script src="vendor/bootstrap.min.js"></script>
-<script src="vendor/spectrum.js"></script>
+<script src="vendor/bootstrap-toggle.min.js"></script>
 <script src="vendor/jcanvas.min.js"></script>
 <script src="js/Tools.js"></script>
 <script src="js/KeyCodes.js"></script>
 <script src="js/LindenmayerParser.js"></script>
 <script src="js/Turtle2D.js"></script>
 <script>
-    window.scroll(2250, 2250);
+    window.scroll(1800, 1800);
     $("#angle").val(60);
     $("#beginningInstruction").val("F++F++F");
     $("#productions").val("F->F-F++F-F");
@@ -116,15 +122,12 @@
     var instructionData;
     var turtle2D;
     var theta;
-    var turtleColor = '#0000ff';
+    var turtleColor = $('#colorInput').val();
 
-    $('#colorInput').spectrum({
-        color: turtleColor,
-        change: function (color) {
-            turtleColor = color.toHexString();
-            if (turtle2D != null) {
-                turtle2D.changeColor(turtleColor);
-            }
+    $('#colorInput').change(function() {
+        turtleColor = $('#colorInput').val();
+        if (turtle2D != null) {
+            turtle2D.changeColor(turtleColor);
         }
     });
 
@@ -197,7 +200,7 @@
         }
     });
 
-    $("#btnAnimate").click(function (event) {
+    $("#btnAnimate").change(function () {
         if (animationID != null) {
             clearInterval(animationID);
             animationID = null;
@@ -205,8 +208,6 @@
             animationAngle = parseInt($("#angle").val());
             animationID = window.setInterval("animationDynamic()", 100);
         }
-
-        event.preventDefault();
     });
 
     function animate() {
@@ -374,18 +375,49 @@
         $("#examples").append("<option value='" + i + "'>" + examples[i].name + "</option>");
     }
 
+    function selectExample(index) {
+        var selectedExample = examples[index];
+        $("#angle").val(selectedExample.angle);
+        $("#beginningInstruction").val(selectedExample.beginningInstruction);
+        $("#productions").val(selectedExample.productions);
+        $("#iterationNumber").val(selectedExample.iterationNumber);
+    }
+
     $("#examples").change(function () {
         var selectedIndex = $('select[name=examples]').val();
         if (selectedIndex == -1) {
             return;
         }
 
-        var selectedExample = examples[selectedIndex];
-        $("#angle").val(selectedExample.angle);
-        $("#beginningInstruction").val(selectedExample.beginningInstruction);
-        $("#productions").val(selectedExample.productions);
-        $("#iterationNumber").val(selectedExample.iterationNumber);
+        selectExample(selectedIndex);
     });
+
+    let idleTime = 0;
+
+    function resetIdleTime() {
+        idleTime = 0;
+    }
+
+    $(this).mousemove(resetIdleTime);
+    $(this).keypress(resetIdleTime);
+
+    let lastChangeCounter = 0;
+    function randomizeOnIdle() {
+        idleTime += 1;
+        lastChangeCounter++;
+        if(lastChangeCounter > 500 && idleTime > 2000) {
+            selectExample(Math.floor(Math.random() * examples.length));
+            $("#turtleForm").submit();
+            lastChangeCounter = 0;
+            if(animationID == null) {
+                animationAngle = parseInt($("#angle").val());
+                animationID = window.setInterval("animationDynamic()", 100);
+            }
+        }
+        requestAnimationFrame(randomizeOnIdle);
+    }
+
+    randomizeOnIdle();
 </script>
 </body>
 </html>
